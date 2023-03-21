@@ -6,7 +6,7 @@
     <a href="<?= route('list-create') ?>" class=" btn btn-outline-primary">Create New</a>
     <form action="" method="get">
         <div class=" input-group">
-            <input type="text" name="q" value="<?php if (isset($_GET['q'])) : ?> <?= $_GET["q"] ?> <?php endif; ?>" class=" form-control">
+            <input type="text" name="q" value="<?php if (isset($_GET['q'])) : ?> <?= filter($_GET["q"],true) ?> <?php endif; ?>" class=" form-control">
             <?php if (isset($_GET['q'])) : ?>
                 <a href="<?= route("list") ?>" class=" btn btn-danger">
                     Del
@@ -29,10 +29,10 @@
     </thead>
     <tbody>
 
-        <?php $i=1; foreach ($lists["data"] as $list) : ?>
+        <?php foreach ($lists["data"] as $list) : ?>
             <tr>
                 <td>
-                    <?php echo $i++ ?>
+                    <?= $list['id'] ?>
                 </td>
                 <td>
                     <?= $list['name'] ?>
@@ -65,3 +65,5 @@
 
 
 <?php require_once ViewDir . "/template/footer.php"; ?>
+
+<!-- <script>alert("hhz")</script> -->

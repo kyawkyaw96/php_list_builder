@@ -63,6 +63,10 @@ function redirect(string $url, string $message = null): void
     header("Location:" . $url);
 }
 
+function redirectBack(string $message = null):void{
+    redirect($_SERVER['HTTP_REFERER'],$message);
+}
+
 function checkRequestMethod(string $methodName)
 {
     $result = false;
@@ -70,9 +74,9 @@ function checkRequestMethod(string $methodName)
     $serverRequestMethod = $_SERVER["REQUEST_METHOD"];
     if ($methodName === "POST" && $serverRequestMethod === "POST") {
         $result = true;
-    } elseif ($methodName === "PUT" && ($serverRequestMethod === "PUT" || ($serverRequestMethod === "POST" && !empty($_POST["_method"]) && strtoupper($_POST["_method"]) === "PUT"))) {
+    } elseif ($methodName === "PUT" && ( $serverRequestMethod === "PUT" || ($serverRequestMethod === "POST" && !empty($_POST["_method"]) && strtoupper($_POST["_method"]) === "PUT"))) {
         $result = true;
-    } elseif ($methodName === "DELETE" && ($serverRequestMethod === "DELETE" || ($serverRequestMethod === "POST" && !empty($_POST["_method"]) && strtoupper($_POST["_method"]) === "DELETE"))) {
+    } elseif ($methodName === "DELETE" && ( $serverRequestMethod === "DELETE" || ($serverRequestMethod === "POST" && !empty($_POST["_method"]) && strtoupper($_POST["_method"]) === "DELETE"))) {
         $result = true;
     }
 
@@ -86,9 +90,6 @@ function alert(string $message, string $color = "success"): string
 
 function paginator($lists)
 {
-    // dd($lists);
-    $endArray = end($lists["data"])["id"];
-
 
     $links = "";
 
@@ -97,11 +98,7 @@ function paginator($lists)
     }
 
     return "<div class=' d-flex justify-content-between'>
-            <div>
             <p class=' mb-0'>Total : " . $lists['total'] . "</p>
-            <p class=' mb-0'>Last ID : " . $endArray . "</p>
-
-            </div>
             <nav aria-label='Page navigation example'>
                 <ul class='pagination'>
                 
@@ -129,6 +126,81 @@ function responseJson(mixed $data, int $status = 200): string
     return print(json_encode(["message" => $data]));
 }
 
+function filter($str,bool $strip = false){
+    // $str = str_replace("script","",$str);
+    // $str = trim($str,"<></>");
+
+    if($strip){
+        $str = strip_tags($str);
+    }
+
+    $str = trim($str);
+    $str = htmlentities($str,ENT_QUOTES);
+    $str = stripslashes($str);
+    
+
+    return $str;
+}
+
+// validation function start
+
+function setError(string $key,string $message): void
+{
+
+    $_SESSION["error"][$key] = $message;
+}
+
+function hasError(string $key): bool
+{
+    if (!empty($_SESSION["error"][$key])) return true;
+    return false;
+}
+
+function showError(string $key): string
+{
+    $message = $_SESSION["error"][$key];
+    unset($_SESSION["error"][$key]);
+    return $message;
+}
+
+function old(string $key):string|null{
+    if(isset($_SESSION['old'][$key])){
+        $data = $_SESSION["old"][$key];
+        unset($_SESSION["old"][$key]);
+        return $data;
+    }
+    return null;
+}
+
+function validationStart():void{
+    unset($_SESSION['old']);
+    unset($_SESSION['error']);
+    $_SESSION["old"] = $_POST;
+}
+
+function validationEnd( bool $isApi = false ):void{
+    if(hasSession("error")){
+        if($isApi){
+            responseJson([
+                "status" => false,
+                "errors" => showSession('error')
+            ]);
+        }else{
+            redirectBack();
+        }
+
+        die();
+
+        
+    }else{
+        unset($_SESSION['old']);
+    }
+
+}
+
+// validation function end
+
+
 // session function start
 function setSession(string $message, string $key = "message"): void
 {
@@ -142,7 +214,7 @@ function hasSession(string $key = "message"): bool
     return false;
 }
 
-function showSession(string $key = "message"): string
+function showSession(string $key = "message"): string|array
 {
     $message = $_SESSION[$key];
     unset($_SESSION[$key]);
@@ -225,7 +297,7 @@ function paginate($sql, $limit = 10)
     return $lists;
 }
 
-function createTable(string $tableName, ...$columns): void
+function createTable(string $tableName,...$columns): void
 {
 
     $sql = "DROP TABLE IF EXISTS $tableName";
@@ -235,11 +307,11 @@ function createTable(string $tableName, ...$columns): void
 
     $sql = "CREATE TABLE $tableName (
     `id` int(11) NOT NULL AUTO_INCREMENT,
-    " . join(",", $columns) . ",
+    ".join(",",$columns).",
     `updated_at` timestamp NOT NULL DEFAULT current_timestamp(),
     `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
     PRIMARY KEY (`id`)
-  ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;";
+  ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;";
 
     run($sql);
     logger($tableName . " table create successfully");

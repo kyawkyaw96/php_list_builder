@@ -1,6 +1,6 @@
 <?php require_once ViewDir . "/template/header.php"; ?>
 
-<h1>My Lists</h1>
+<h1>Inventory Lists</h1>
 
 <div class=" d-flex justify-content-between mb-3">
     <a href="<?= route('inventory-create') ?>" class=" btn btn-outline-primary">Create New</a>
@@ -30,10 +30,10 @@
     </thead>
     <tbody>
 
-        <?php $i=1; foreach ($lists["data"] as $list) : ?>
+        <?php foreach ($lists["data"] as $list) : ?>
             <tr>
                 <td>
-                    <?= $i++?>
+                    <?= $list['id'] ?>
                 </td>
                 <td>
                     <?= $list['name'] ?>

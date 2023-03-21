@@ -1,11 +1,11 @@
 <?php require_once ViewDir . "/template/header.php"; ?>
 
-<h1>Edit List</h1>
+<h1>Edit Item</h1>
 
  
 
 <div class=" d-flex justify-content-between mb-3">
-    <a href="<?= route('inventory') ?>" class=" btn btn-outline-primary">All List</a>
+    <a href="<?= route('inventory') ?>" class=" btn btn-outline-primary">All Items</a>
 </div>
 
 <div class=" border rounded p-5">
@@ -26,7 +26,7 @@
                 <input type="number" class=" form-control" value="<?= $list["stock"] ?>" name="stock">
             </div>
             <div class=" col">
-                <button class=" btn btn-lg btn-primary w-100 ">Update List</button>
+                <button class=" btn btn-lg btn-primary w-100 ">Update Item</button>
             </div>
         </div>
     </form>
